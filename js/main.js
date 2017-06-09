@@ -27,7 +27,15 @@ var Stopwatch = function(elem, options) {
     function start() {
         if (!interval) {
             offset   = Date.now();
-            interval = setInterval(update, options.delay);
+            var holdon = setInterval(function() {
+                var d = new Date();
+                tms = d.getTime();
+                if (tms % 1000 < 3) {
+                    clearInterval(holdon);
+                    interval = setInterval(update, options.delay);
+                }
+            }, 1);
+            //interval = setInterval(update, options.delay);
             localStorage.setItem('starttime', offset);
         }
     }
@@ -35,7 +43,15 @@ var Stopwatch = function(elem, options) {
     function restart(starttime) {
         offset = starttime;
         if (!interval) {
-            interval = setInterval(update, options.delay);
+            var holdon = setInterval(function() {
+                var d = new Date();
+                tms = d.getTime();
+                if (tms % 1000 < 3) {
+                    clearInterval(holdon);
+                    interval = setInterval(update, options.delay);
+                }
+            }, 1);
+//            interval = setInterval(update, options.delay);
         }
     }
 
@@ -43,7 +59,14 @@ var Stopwatch = function(elem, options) {
         offset = 0;
         scheduledstart = starttime;
         if (!interval) {
-            interval = setInterval(update, options.delay);
+            var holdon = setInterval(function() {
+                var d = new Date();
+                tms = d.getTime();
+                if (tms % 1000 < 3) {
+                    clearInterval(holdon);
+                    interval = setInterval(update, options.delay);
+                }
+            }, 1);
         }
         $(".race1 .timer span").addClass("countdown")
     }
@@ -84,39 +107,56 @@ var Stopwatch = function(elem, options) {
         var digitmode = 'timer';
         if (offset && offset != 0) { // timer is started
             timer.innerHTML = ('' + clock).toHHMMSS();
+//            $('#debug').html($('#debug').html()+', '+Date.now());
         }
         else {
-            if (mode && (mode == 'auto' || mode == 'autobeep' || mode == 'launch') && scheduledstart > Date.now()) { // countdown is going 
+            if (mode && (mode == 'auto' || mode == 'autobeep' || mode == 'launch' || mode == 'autolaunch') && 
+                scheduledstart > Date.now()) { // countdown is going 
                 digitmode = 'countdown';
                 d = new Date(parseInt(scheduledstart));
                 n = Date.parse(new Date(d - Date.now()));
 
                 tstr = ('' + n).toHHMMSS();
                 timer.innerHTML = tstr;
-                if (mode == 'autobeep' || mode == 'launch') {
+//                $('#debug').html($('#debug').html()+','+Date.now());
+                if (mode == 'autobeep' || mode == 'launch' || mode == 'autolaunch') {
                     if (tstr == '00:00:10' || tstr == '00:00:20')
-                        beep (80);
+                        beep (50);
                     else if (tstr == '00:00:05' || tstr == '00:00:04' || tstr == '00:00:03' || tstr == '00:00:02' || tstr == '00:00:01')
                         beep (100);
                     else if (tstr == '00:00:00')
-                        beep (500);
+                        beep (800);
                     else if (tstr == '00:20:00')
                         speakRaceAnnouncement (raceAnnouncement.replace('{minutes}', 20));
+                    else if (tstr == '00:15:00')
+                        speakRaceAnnouncement (raceAnnouncement.replace('{minutes}', 15));
                     else if (tstr == '00:11:00')
                         speakRaceAnnouncement ('Tiedotus: Kaikille ajajille pakollinen turvallisuusohjeiden läpikäynti alkaa minuutin kuluttua! Seifti briiffing staats in van minits!');
                     else if (tstr == '00:10:00')
                         speakSafety();
                     else if (tstr == '00:03:00')
-                        speakRaceAnnouncement (raceAnnouncement.replace('{minutes}', 5));
+                        speakRaceAnnouncement (raceAnnouncement.replace('{minutes}', 3));
+                    else if (tstr == '00:02:00')
+                        speakRaceAnnouncement (raceAnnouncement.replace('{minutes}', 2));
+                    else if (tstr == '00:01:00')
+                        speakRaceAnnouncement (raceAnnouncement.replace('{minutes}', 1));
                 }
             }
             else {
-                if (scheduledstart) {
+                if (scheduledstart && mode != 'autolaunch') {
                     offset = scheduledstart;
                     localStorage.setItem('starttime', offset);
                     r1isStarted();
+                    $(".race1 .timer span").removeClass("countdown")
                 }
-                $(".race1 .timer span").removeClass("countdown")
+                else if (scheduledstart && mode == 'autolaunch') {
+                    var seq = Number.parseInt(sequence.value);
+                    if (seq > 5)
+                        t = scheduledstart + (seq * 1000);
+                    else
+                        alert ('Invalid start sequence delay.');
+                    scheduledstart = t;
+                }
 
             }
         }
@@ -130,6 +170,13 @@ var Stopwatch = function(elem, options) {
             else
                 display = null; // user has closed the window
         }
+    }
+
+    function isStarted() {
+        if (interval)
+            return true;
+        else
+            return false;
     }
 
     function setDuration (ms) {
@@ -158,6 +205,7 @@ var Stopwatch = function(elem, options) {
     this.setMode = setMode;
     this.setScheduledStart = setScheduledStart;
     this.startCountdown = startCountdown;
+    this.isStarted = isStarted;
 
 }; // Stopwatch code ends
 
@@ -219,12 +267,13 @@ function speakNextLine () {
 
 
 function setupok () {
-    localStorage.setItem('race1title',     $("#race1title").val());
-    localStorage.setItem('race1scheduled', $("#race1scheduled").val());
-    localStorage.setItem('race1duration-h',    $("#race1duration-h").val());
-    localStorage.setItem('race1duration-m',    $("#race1duration-m").val());
-    localStorage.setItem('race1mode',          $("#race1mode").val());
-    localStorage.setItem('race1timermode',     $("#race1timermode").val());
+    localStorage.setItem('race1title',      $("#race1title").val());
+    localStorage.setItem('race1mode',       $("#race1mode").val());
+    localStorage.setItem('race1timermode',  $("#race1timermode").val());
+    localStorage.setItem('race1scheduled',  $("#race1scheduled").val());
+    localStorage.setItem('race1duration-h', $("#race1duration-h").val());
+    localStorage.setItem('race1duration-m', $("#race1duration-m").val());
+    localStorage.setItem('sequence',        $("#sequence").val());
 
     refreshsetup();
 }
@@ -232,11 +281,12 @@ function setupok () {
 function refreshsetup () {
     $(".race1 .racetitle").html(localStorage.getItem('race1title'));
     $(".race1 .title").val(localStorage.getItem('race1title'));
+    $("#race1mode").val(localStorage.getItem('race1mode'));
+    $("#race1timermode").val(localStorage.getItem('race1timermode'));
     $("#race1scheduled").val(localStorage.getItem('race1scheduled'));
     $("#race1duration-h").val(localStorage.getItem('race1duration-h'));
     $("#race1duration-m").val(localStorage.getItem('race1duration-m'));
-    $("#race1mode").val(localStorage.getItem('race1mode'));
-    $("#race1timermode").val(localStorage.getItem('race1timermode'));
+    $("#sequence").val(localStorage.getItem('sequence'));
 
     ms = (localStorage.getItem('race1duration-h') * 3600 +
         localStorage.getItem('race1duration-m') * 60) * 1000;
@@ -249,6 +299,7 @@ function refreshsetup () {
         $("#startCountdown1").hide();
     }
 
+    $('#setup1').show();
     if (localStorage.getItem('race1mode') == 'launch') {
         launchSelected ();
     }
@@ -278,25 +329,29 @@ function setup1Mode () {
     var mode = $("#race1mode").val();
     var timermode = $("#race1timermode").val();
 
-    if (mode == 'launch') {
-        $('.race1 .row.scheduled').hide();
-        $('.race1 .row.duration').hide();
-        $('.race1 .row.sequence').hide();
-    }
-    if (mode == 'autolaunch') {
+    if (mode == 'launch' || mode == 'autolaunch') {
         $('.race1 .row.scheduled').hide();
         $('.race1 .row.duration').hide();
         $('.race1 .row.sequence').show();
+        $('#startLaunch').show();
+        $('#startRace1').hide();
+        $('#startCountdown1').hide();
     }
     if (mode == 'auto' || mode == 'autobeep') {
         $('.race1 .row.scheduled').show();
         $('.race1 .row.duration').show();
         $('.race1 .row.sequence').hide();
+        $('#startLaunch').hide();
+        $('#startRace1').hide();
+        $('#startCountdown1').show();
     }
     if (mode == 'manual') {
         $('.race1 .row.scheduled').hide();
         $('.race1 .row.duration').show();
         $('.race1 .row.sequence').hide();
+        $('#startLaunch').hide();
+        $('#startRace1').show();
+        $('#startCountdown1').hide();
     }
     if (timermode == 'up') {
         $('.race1 .row.duration').hide();
@@ -304,6 +359,11 @@ function setup1Mode () {
     if (timermode == 'down') {
         $('.race1 .row.duration').show();
     }
+
+    if (race1timer.isStarted())
+        $('#stopRace1').show();
+    else        
+        $('#stopRace1').hide();
 }
 
 String.prototype.toHHMMSS = function () {
@@ -335,12 +395,18 @@ $("#startCountdown1").click(function() {
 });
 
 $("#startLaunch").click(function() {
-  d = new Date();
-  t = d.getTime() + (20 * 1000);
-  starttime = new Date(t);
+var seq = Number.parseInt(sequence.value);
+if (seq > 5) {
+    d = new Date();
+    t = d.getTime() + (seq * 1000);
 
-  race1timer.startCountdown(t);
-  launchSelected();
+    starttime = new Date(t);
+
+    race1timer.startCountdown(t);
+    launchSelected();
+}
+else
+    alert ('Invalid start sequence delay.');
 });
 
 $("#stopRace1").click(function() {
