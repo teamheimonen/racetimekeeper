@@ -19,7 +19,7 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <!-- Content starts -->
+        <!-- First race -->
 
         <div class="race race1">
             <div class="racetitle">Title</div>
@@ -109,6 +109,87 @@
             </div>
             <!-- end of setupbar -->
         </div>
+
+        <!-- Second race -->
+
+            <div class="race race2">
+            <div class="racetitle">Title</div>
+            <div class="timer" id="stopwatch2"></div>
+            <div class="actionbar">
+                <button type="button" id="startCountdown2">Start countdown</button>
+                <button type="button" id="startRace2">Start timing now</button>
+                <button type="button" id="stopRace2">Stop</button>
+                <a href="#" id="setup2">Setup</a>
+                <span id="debug"></span>
+            </div>
+
+            <!-- Setupbar -->
+            <div class="setupbar">
+                <div class="row">
+                    <div class="col1 text-right">
+                        <label for="race2title">Race 1 title</label>
+                    </div>
+                    <div class="col3">
+                        <input type="text" id="race2title" class="title" size="50" value="">
+                    </div>
+                    <div class="col1 text-right">
+                        <button id="btnclose2">X</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col1 text-right">
+                        <label for="race2mode">Starting mode</label>
+                    </div>
+                    <div class="col3">
+                        <select name="race2mode" id="race2mode">
+                            <option value="autobeep">Countdown + autostart with beeps</option>
+                            <option value="auto">Countdown + autostart</option>
+                            <option value="manual">Manual start</option>
+                            <option value="launch">Manual launch aid</option>
+                            <option value="autolaunch">Automated launch sequence</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col1 text-right">
+                        <label for="race2timermode">Race display mode</label>
+                    </div>
+                    <div class="col1">
+                        <select name="race2timermode" id="race2timermode">
+                            <option value="up">Timer up</option>
+                            <option value="down">Timer down</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row scheduled">
+                    <div class="col1 text-right">
+                        <label for="race2scheduled">Scheduled starting time</label>
+                    </div>
+                    <div class="col3">
+                        <input type="text" id="race2scheduled" size="5" value=""> HH:MM
+                    </div>
+                </div>
+                <div class="row duration">
+                    <div class="col1 text-right">
+                        <label for="race2duration-h">Duration</label>
+                    </div>
+                    <div class="col3">
+                        <input type="text" id="race2duration-h" size="2"> hours,
+                        <input type="text" id="race2duration-m" size="2"> minutes
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col1">
+                        &nbsp;
+                    </div>
+                    <div class="col1">
+                        <button class="btn" id="btnsetup2ok">OK</button>
+                    </div>
+                </div>
+            </div>
+            <!-- end of setupbar -->
+        </div>
+
         <script src="js/vendor/jquery-1.12.0.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.12.0.min.js"><\/script>')</script>
         <script src="js/plugins.js"></script>
